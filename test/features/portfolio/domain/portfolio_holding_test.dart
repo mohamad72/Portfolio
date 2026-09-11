@@ -8,6 +8,7 @@ void main() {
       symbolName: 'عیار',
       quantity: 125,
       marketPriceToman: 42000,
+      marketPriceBasis: MarketPriceBasis.lastTrade,
     );
 
     expect(holding.currentValueToman, 5250000);

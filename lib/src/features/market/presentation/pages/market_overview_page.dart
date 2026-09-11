@@ -10,49 +10,35 @@ class MarketOverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('پرتفوی'),
-        actions: <Widget>[
-          IconButton(
-            tooltip: 'به‌روزرسانی بازار',
-            onPressed: () => context.read<MarketCubit>().load(),
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => context.read<MarketCubit>().load(),
-        child: BlocBuilder<MarketCubit, MarketState>(
-          builder: (BuildContext context, MarketState state) {
-            return switch (state) {
-              MarketInitial() || MarketLoading() => const _LoadingView(),
-              MarketError(:final message) => _ErrorView(message: message),
-              MarketLoaded(:final prices) => ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  children: <Widget>[
-                    Text(
-                      'بازار',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
+    return RefreshIndicator(
+      onRefresh: () => context.read<MarketCubit>().load(),
+      child: BlocBuilder<MarketCubit, MarketState>(
+        builder: (BuildContext context, MarketState state) {
+          return switch (state) {
+            MarketInitial() || MarketLoading() => const _LoadingView(),
+            MarketError(:final message) => _ErrorView(message: message),
+            MarketLoaded(:final prices) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                children: <Widget>[
+                  Text(
+                    'قیمت‌های عمومی بازار',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'داده‌ها از snapshot TGJU می‌آیند. فقط واحدهایی که در منبع تأیید شده‌اند به تومان تبدیل می‌شوند.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  for (final price in prices) ...<Widget>[
+                    MarketPriceCard(price: price),
                     const SizedBox(height: 8),
-                    Text(
-                      'قیمت‌ها از snapshot ثبت‌شدهٔ TGJU خوانده می‌شوند. فقط واحدهایی که در منبع تأیید شده‌اند به تومان تبدیل می‌شوند.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    for (final price in prices) ...<Widget>[
-                      MarketPriceCard(price: price),
-                      const SizedBox(height: 8),
-                    ],
-                    const SizedBox(height: 16),
-                    const _PortfolioPlaceholder(),
                   ],
-                ),
-            };
-          },
-        ),
+                ],
+              ),
+          };
+        },
       ),
     );
   }
@@ -99,32 +85,6 @@ class _ErrorView extends StatelessWidget {
           label: const Text('تلاش دوباره'),
         ),
       ],
-    );
-  }
-}
-
-class _PortfolioPlaceholder extends StatelessWidget {
-  const _PortfolioPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Text(
-              'سبد سهام',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'اسکلت دامنه آماده است؛ اتصال ورود و موجودی مفید در مرحلهٔ بعد به Repository مخصوص مفید اضافه می‌شود.',
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

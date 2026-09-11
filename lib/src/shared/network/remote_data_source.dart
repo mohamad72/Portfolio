@@ -4,4 +4,17 @@ abstract interface class RemoteDataSource {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
   });
+
+  Future<Map<String, dynamic>> postJson(
+    String url, {
+    Object? body,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+  });
+
+  Future<Map<String, dynamic>> postForm(
+    String url, {
+    required Map<String, dynamic> body,
+    Map<String, dynamic>? headers,
+  });
 }

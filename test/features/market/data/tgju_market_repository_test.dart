@@ -26,6 +26,25 @@ class _FakeRemoteDataSource implements RemoteDataSource {
       },
     };
   }
+  @override
+  Future<Map<String, dynamic>> postForm(
+    String url, {
+    required Map<String, dynamic> body,
+    Map<String, dynamic>? headers,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<Map<String, dynamic>> postJson(
+    String url, {
+    Object? body,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+  }) {
+    throw UnimplementedError();
+  }
+
 }
 
 void main() {

@@ -11,17 +11,14 @@ import '../mapper/tgju_market_mapper.dart';
 
 @LazySingleton(as: MarketRepository)
 class TgjuMarketRepositoryImpl implements MarketRepository {
-  TgjuMarketRepositoryImpl(
-    this._remoteDataSource, {
-    TgjuMarketMapper mapper = const TgjuMarketMapper(),
-  }) : _mapper = mapper;
+  TgjuMarketRepositoryImpl(this._remoteDataSource);
 
   static const String _snapshotUrl = 'https://call4.tgju.org/ajax.json';
   static const String _alphabet =
       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
   final RemoteDataSource _remoteDataSource;
-  final TgjuMarketMapper _mapper;
+  final TgjuMarketMapper _mapper = const TgjuMarketMapper();
 
   static const List<_InstrumentContract> _instruments = <_InstrumentContract>[
     _InstrumentContract(

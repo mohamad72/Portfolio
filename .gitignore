@@ -15,3 +15,9 @@ android/local.properties
 *.keystore
 key.properties
 .env
+
+# Captures and sensitive local API/session material
+*.har
+apis.txt
+captures/
+secrets/
