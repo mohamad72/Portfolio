@@ -36,7 +36,7 @@ class _LoadingBody extends StatelessWidget {
   const _LoadingBody();
 
   @override
-  Widget build(BuildContext context) => const ListView(
+  Widget build(BuildContext context) => ListView(
         physics: AlwaysScrollableScrollPhysics(),
         children: <Widget>[
           SizedBox(height: 260),
