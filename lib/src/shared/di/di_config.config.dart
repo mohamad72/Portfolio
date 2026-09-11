@@ -14,6 +14,7 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:local_auth/local_auth.dart' as _i152;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../features/accounts/data/repository/ipasargad_authentication_repository_impl.dart'
@@ -30,14 +31,14 @@ import '../../features/accounts/presentation/manager/broker_accounts_cubit.dart'
     as _i968;
 import '../../features/accounts/presentation/manager/ipasargad_login_cubit.dart'
     as _i903;
+import '../../features/authentication/data/remote/mofid_login_remote_data_source.dart'
+    as _i57;
 import '../../features/authentication/data/repository/mofid_authentication_repository_impl.dart'
     as _i955;
+import '../../features/authentication/data/security/mofid_credential_store.dart'
+    as _i445;
 import '../../features/authentication/domain/repository/authentication_repository.dart'
     as _i797;
-import '../../features/authentication/domain/use_case/complete_login.dart'
-    as _i150;
-import '../../features/authentication/domain/use_case/get_login_request.dart'
-    as _i662;
 import '../../features/authentication/presentation/manager/authentication_cubit.dart'
     as _i317;
 import '../../features/benchmark/domain/relative_return_calculator.dart'
@@ -88,6 +89,7 @@ import '../../features/watchlist/presentation/manager/watchlist_cubit.dart'
     as _i417;
 import '../network/dio_remote_data_source.dart' as _i392;
 import '../network/remote_data_source.dart' as _i313;
+import '../security/biometric_authenticator.dart' as _i374;
 import '../security/secure_session_store.dart' as _i675;
 import 'network_module.dart' as _i567;
 
@@ -103,9 +105,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => networkModule.preferences(),
       preResolve: true,
     );
-    gh.lazySingleton<_i662.GetLoginRequest>(
-      () => const _i662.GetLoginRequest(),
-    );
     gh.lazySingleton<_i52.RelativeReturnCalculator>(
       () => const _i52.RelativeReturnCalculator(),
     );
@@ -119,8 +118,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
       () => networkModule.secureStorage(),
     );
+    gh.lazySingleton<_i152.LocalAuthentication>(
+      () => networkModule.localAuthentication(),
+    );
+    gh.lazySingleton<_i57.MofidLoginRemoteDataSource>(
+      () => _i57.DioMofidLoginRemoteDataSource(),
+    );
     gh.lazySingleton<_i675.SessionStore>(
       () => _i675.SecureSessionStore(gh<_i558.FlutterSecureStorage>()),
+    );
+    gh.lazySingleton<_i445.MofidCredentialStore>(
+      () => _i445.SecureMofidCredentialStore(gh<_i558.FlutterSecureStorage>()),
     );
     gh.lazySingleton<_i491.IPasargadSessionStore>(
       () => _i491.SecureIPasargadSessionStore(gh<_i558.FlutterSecureStorage>()),
@@ -138,12 +146,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i675.SessionStore>(),
       ),
     );
-    gh.lazySingleton<_i797.AuthenticationRepository>(
-      () => _i955.MofidAuthenticationRepositoryImpl(
-        gh<_i313.RemoteDataSource>(),
-        gh<_i675.SessionStore>(),
-      ),
-    );
     gh.lazySingleton<_i638.MofidPortfolioSource>(
       () => _i413.MofidPortfolioRepositoryImpl(
         gh<_i313.RemoteDataSource>(),
@@ -155,6 +157,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
         gh<_i675.SessionStore>(),
       ),
+    );
+    gh.lazySingleton<_i374.BiometricAuthenticator>(
+      () => _i374.LocalBiometricAuthenticator(gh<_i152.LocalAuthentication>()),
     );
     gh.lazySingleton<_i967.LocalPortfolioRepository>(
       () => _i554.PreferencesLocalPortfolioRepositoryImpl(
@@ -187,19 +192,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i417.WatchlistCubit>(
       () => _i417.WatchlistCubit(gh<_i132.WatchlistRepository>()),
     );
-    gh.lazySingleton<_i150.CompleteLogin>(
-      () => _i150.CompleteLogin(gh<_i797.AuthenticationRepository>()),
-    );
     gh.factory<_i903.IPasargadLoginCubit>(
       () => _i903.IPasargadLoginCubit(
         gh<_i670.IPasargadAuthenticationRepository>(),
       ),
     );
-    gh.lazySingleton<_i317.AuthenticationCubit>(
-      () => _i317.AuthenticationCubit(
-        gh<_i797.AuthenticationRepository>(),
-        gh<_i662.GetLoginRequest>(),
-        gh<_i150.CompleteLogin>(),
+    gh.lazySingleton<_i797.AuthenticationRepository>(
+      () => _i955.MofidAuthenticationRepositoryImpl(
+        gh<_i313.RemoteDataSource>(),
+        gh<_i57.MofidLoginRemoteDataSource>(),
+        gh<_i675.SessionStore>(),
+        gh<_i445.MofidCredentialStore>(),
+        gh<_i374.BiometricAuthenticator>(),
       ),
     );
     gh.lazySingleton<_i968.BrokerAccountsCubit>(
@@ -224,6 +228,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i967.LocalPortfolioRepository>(),
         gh<_i361.Dio>(),
       ),
+    );
+    gh.lazySingleton<_i317.AuthenticationCubit>(
+      () => _i317.AuthenticationCubit(gh<_i797.AuthenticationRepository>()),
     );
     gh.lazySingleton<_i910.SharingCubit>(
       () => _i910.SharingCubit(gh<_i1008.PortfolioSharingRepository>()),

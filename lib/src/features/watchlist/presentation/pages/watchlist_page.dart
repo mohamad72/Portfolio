@@ -15,7 +15,7 @@ class WatchlistPage extends StatelessWidget {
       onRefresh: context.read<WatchlistCubit>().load,
       child: BlocBuilder<WatchlistCubit, WatchlistState>(
         builder: (context, state) => switch (state) {
-          WatchlistInitial() || WatchlistLoading() => const ListView(
+          WatchlistInitial() || WatchlistLoading() => ListView(
               physics: AlwaysScrollableScrollPhysics(),
               children: <Widget>[
                 SizedBox(height: 260),
