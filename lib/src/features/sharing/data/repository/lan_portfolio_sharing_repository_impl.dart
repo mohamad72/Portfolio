@@ -108,13 +108,17 @@ class LanPortfolioSharingRepositoryImpl implements PortfolioSharingRepository {
           password: ShareCredentials.password,
         ),
       );
-    } catch (error) {
+    } catch (error, stackTrace) {
       await _serverSubscription?.cancel();
       _serverSubscription = null;
       await _server?.close(force: true);
       _server = null;
       return left(
-        Failure('راه‌اندازی اشتراک‌گذاری محلی ناموفق بود.', cause: error),
+        Failure.detailed(
+          'راه‌اندازی اشتراک‌گذاری محلی ناموفق بود.',
+          error,
+          stackTrace,
+        ),
       );
     }
   }
@@ -127,8 +131,14 @@ class LanPortfolioSharingRepositoryImpl implements PortfolioSharingRepository {
       await _server?.close(force: true);
       _server = null;
       return right(unit);
-    } catch (error) {
-      return left(Failure('توقف اشتراک‌گذاری ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'توقف اشتراک‌گذاری ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -160,27 +170,49 @@ class LanPortfolioSharingRepositoryImpl implements PortfolioSharingRepository {
       );
 
       if (response.statusCode == HttpStatus.unauthorized) {
-        return left(const Failure('نام کاربری یا رمز اشتراک‌گذاری اشتباه است.'));
+        return left(
+          Failure.invalidResponse(
+            'نام کاربری یا رمز اشتراک‌گذاری اشتباه است.',
+            <String, Object?>{
+              'statusCode': response.statusCode,
+              'statusMessage': response.statusMessage,
+              'data': response.data,
+            },
+          ),
+        );
       }
       if (response.statusCode != HttpStatus.ok) {
         return left(
-          Failure('سرور اشتراک‌گذاری پاسخ ${response.statusCode} داد.'),
+          Failure.invalidResponse(
+            'سرور اشتراک‌گذاری پاسخ ${response.statusCode} داد.',
+            <String, Object?>{
+              'statusCode': response.statusCode,
+              'statusMessage': response.statusMessage,
+              'data': response.data,
+            },
+          ),
         );
       }
 
       final raw = response.data;
       if (raw is! Map) {
-        return left(const Failure('پاسخ اشتراک‌گذاری معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'پاسخ اشتراک‌گذاری معتبر نیست.',
+            raw,
+          ),
+        );
       }
       final json = raw.map<String, dynamic>(
         (key, value) => MapEntry(key.toString(), value),
       );
       return right(SharedPortfolioBundleModel.fromJson(json).toDomain());
-    } catch (error) {
+    } catch (error, stackTrace) {
       return left(
-        Failure(
+        Failure.detailed(
           'اتصال به پرتفوی اشتراکی ناموفق بود. هر دو گوشی باید به یک شبکه دسترسی داشته باشند.',
-          cause: error,
+          error,
+          stackTrace,
         ),
       );
     }

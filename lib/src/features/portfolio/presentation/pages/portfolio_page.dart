@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../shared/di/di_config.dart';
+import '../../../../shared/error/failure.dart';
 import '../../../../shared/format/number_formatters.dart';
 import '../../../export/data/markdown_file_writer.dart';
 import '../../../export/domain/markdown_portfolio_exporter.dart';
@@ -62,7 +63,7 @@ class _ErrorBody extends StatelessWidget {
             color: Theme.of(context).colorScheme.error,
           ),
           const SizedBox(height: 16),
-          Text(message, textAlign: TextAlign.center),
+          SelectableText(message, textAlign: TextAlign.center),
           const SizedBox(height: 16),
           FilledButton(
             onPressed: context.read<PortfolioCubit>().load,
@@ -417,10 +418,19 @@ class _LoadedBody extends StatelessWidget {
           SnackBar(content: Text('Markdown کپی و در $path ذخیره شد.')),
         );
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Markdown کپی شد؛ ذخیرهٔ فایل ناموفق بود.')),
+          SnackBar(
+            duration: const Duration(minutes: 5),
+            content: Text(
+              Failure.detailed(
+                'Markdown کپی شد؛ ذخیرهٔ فایل ناموفق بود.',
+                error,
+                stackTrace,
+              ).message,
+            ),
+          ),
         );
       }
     }

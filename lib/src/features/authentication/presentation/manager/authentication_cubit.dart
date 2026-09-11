@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../shared/error/failure.dart';
 import '../../domain/repository/authentication_repository.dart';
 import 'authentication_state.dart';
 
@@ -12,21 +13,33 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
   final AuthenticationRepository _repository;
 
   Future<void> checkSession() async {
-    final hasSavedCredentials = await _repository.hasSavedCredentials();
-    final canUseBiometrics = hasSavedCredentials &&
-        await _repository.canAuthenticateWithBiometrics();
+    try {
+      final hasSavedCredentials = await _repository.hasSavedCredentials();
+      final canUseBiometrics = hasSavedCredentials &&
+          await _repository.canAuthenticateWithBiometrics();
 
-    if (canUseBiometrics) {
-      emit(const AuthenticationBiometricRequired());
-      return;
+      if (canUseBiometrics) {
+        emit(const AuthenticationBiometricRequired());
+        return;
+      }
+
+      final hasSession = await _repository.hasSession();
+      emit(
+        hasSession
+            ? const AuthenticationSignedIn()
+            : const AuthenticationSignedOut(),
+      );
+    } catch (error, stackTrace) {
+      emit(
+        AuthenticationError(
+          Failure.detailed(
+            'بررسی نشست و قابلیت اثر انگشت ناموفق بود.',
+            error,
+            stackTrace,
+          ).message,
+        ),
+      );
     }
-
-    final hasSession = await _repository.hasSession();
-    emit(
-      hasSession
-          ? const AuthenticationSignedIn()
-          : const AuthenticationSignedOut(),
-    );
   }
 
   Future<void> login({

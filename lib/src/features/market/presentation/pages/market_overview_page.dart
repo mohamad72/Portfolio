@@ -77,7 +77,7 @@ class _ErrorView extends StatelessWidget {
           color: Theme.of(context).colorScheme.error,
         ),
         const SizedBox(height: 16),
-        Text(message, textAlign: TextAlign.center),
+        SelectableText(message, textAlign: TextAlign.center),
         const SizedBox(height: 16),
         FilledButton.icon(
           onPressed: () => context.read<MarketCubit>().load(),

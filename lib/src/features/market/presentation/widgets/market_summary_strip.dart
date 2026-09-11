@@ -27,13 +27,29 @@ class MarketSummaryStrip extends StatelessWidget {
         }
         if (state is MarketError) {
           return Card(
-            child: ListTile(
-              leading: const Icon(Icons.cloud_off_outlined),
-              title: const Text('قیمت‌های عمومی بازار در دسترس نیست.'),
-              trailing: IconButton(
-                tooltip: 'تلاش دوباره',
-                onPressed: () => context.read<MarketCubit>().load(),
-                icon: const Icon(Icons.refresh),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const Row(
+                    children: <Widget>[
+                      Icon(Icons.cloud_off_outlined),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text('قیمت‌های عمومی بازار در دسترس نیست.'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  SelectableText(state.message),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => context.read<MarketCubit>().load(),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('تلاش دوباره'),
+                  ),
+                ],
               ),
             ),
           );

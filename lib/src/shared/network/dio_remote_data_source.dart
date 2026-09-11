@@ -61,7 +61,10 @@ class DioRemoteDataSource implements RemoteDataSource {
 
   Map<String, dynamic> _asMap(Object? data) {
     if (data is! Map) {
-      throw const FormatException('Expected a JSON object response.');
+      throw FormatException(
+        'Expected a JSON object response. '
+        'Actual type: ${data.runtimeType}. Raw response: $data',
+      );
     }
 
     return data.map<String, dynamic>(

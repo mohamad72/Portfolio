@@ -153,7 +153,7 @@ class _AuthenticatedFeature extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         if (state is AuthenticationBiometricRequired) {
-          return Center(
+          return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -161,7 +161,7 @@ class _AuthenticatedFeature extends StatelessWidget {
                 children: <Widget>[
                   const Icon(Icons.fingerprint, size: 56),
                   const SizedBox(height: 16),
-                  Text(
+                  SelectableText(
                     state.message ??
                         'اطلاعات ورود مفید روی این گوشی ذخیره شده است. برای باز کردن پرتفوی اثر انگشت را تأیید کنید.',
                     textAlign: TextAlign.center,
@@ -187,7 +187,7 @@ class _AuthenticatedFeature extends StatelessWidget {
         final message = state is AuthenticationError
             ? state.message
             : 'برای مشاهدهٔ اطلاعات حساب و نمادهای مفید، ابتدا وارد حساب مفید شوید.';
-        return Center(
+        return SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -195,7 +195,7 @@ class _AuthenticatedFeature extends StatelessWidget {
               children: <Widget>[
                 const Icon(Icons.lock_outline, size: 48),
                 const SizedBox(height: 16),
-                Text(message, textAlign: TextAlign.center),
+                SelectableText(message, textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: onLogin,

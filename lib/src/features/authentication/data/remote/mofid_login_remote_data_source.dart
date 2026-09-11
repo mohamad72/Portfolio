@@ -78,8 +78,11 @@ class DioMofidLoginRemoteDataSource implements MofidLoginRemoteDataSource {
     if (location == null || location.isEmpty) {
       final message = _parser.extractErrorMessage(response.data ?? '');
       throw MofidDirectLoginException(
-        message ??
-            'ورود مستقیم مفید تأیید نشد. ممکن است نام کاربری/رمز نادرست باشد یا مرحلهٔ اضافی ورود لازم باشد.',
+        _responseDetails(
+          message ??
+              'ورود مستقیم مفید تأیید نشد. ممکن است نام کاربری/رمز نادرست باشد یا مرحلهٔ اضافی ورود لازم باشد.',
+          response,
+        ),
       );
     }
 
@@ -110,7 +113,10 @@ class DioMofidLoginRemoteDataSource implements MofidLoginRemoteDataSource {
         final status = response.statusCode ?? 0;
         if (status < 200 || status >= 300) {
           throw MofidDirectLoginException(
-            'صفحهٔ ورود مفید با وضعیت $status پاسخ داد.',
+            _responseDetails(
+              'صفحهٔ ورود مفید با وضعیت $status پاسخ داد.',
+              response,
+            ),
           );
         }
         return _HtmlPage(uri: currentUri, body: response.data ?? '');
@@ -148,8 +154,11 @@ class DioMofidLoginRemoteDataSource implements MofidLoginRemoteDataSource {
       if (location == null || location.isEmpty) {
         final message = _parser.extractErrorMessage(response.data ?? '');
         throw MofidDirectLoginException(
-          message ??
-              'مفید به‌جای کد ورود یک مرحلهٔ اضافی برگرداند؛ این مرحله هنوز قرارداد API ثبت‌شده ندارد.',
+          _responseDetails(
+            message ??
+                'مفید به‌جای کد ورود یک مرحلهٔ اضافی برگرداند؛ این مرحله هنوز قرارداد API ثبت‌شده ندارد.',
+            response,
+          ),
         );
       }
       currentUri = currentUri.resolve(location);
@@ -167,6 +176,13 @@ class DioMofidLoginRemoteDataSource implements MofidLoginRemoteDataSource {
 
   static bool _acceptRedirectOrSuccess(int? status) =>
       status != null && status >= 200 && status < 400;
+
+  String _responseDetails(String context, Response<String> response) =>
+      '$context\n'
+      'درخواست: ${response.requestOptions.method} ${response.requestOptions.uri}\n'
+      'کد وضعیت: ${response.statusCode ?? 'دریافت نشد'}\n'
+      'متن وضعیت: ${response.statusMessage ?? 'دریافت نشد'}\n'
+      'پاسخ خام سرور:\n${response.data ?? 'null'}';
 }
 
 class MofidDirectLoginException implements Exception {

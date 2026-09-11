@@ -39,7 +39,12 @@ class MofidPortfolioRepositoryImpl implements MofidPortfolioSource {
       );
       final rawItems = performance['items'];
       if (rawItems is! List) {
-        return left(const Failure('ساختار موجودی مفید معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'ساختار موجودی مفید معتبر نیست.',
+            performance,
+          ),
+        );
       }
 
       final items = rawItems
@@ -102,8 +107,14 @@ class MofidPortfolioRepositoryImpl implements MofidPortfolioSource {
           ayarPriceToman: quotes[_ayarIsin]?.marketPriceToman,
         ),
       );
-    } catch (error) {
-      return left(Failure('دریافت پرتفوی مفید ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'دریافت پرتفوی مفید ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -137,7 +148,12 @@ class MofidPortfolioRepositoryImpl implements MofidPortfolioSource {
       );
       final data = response['data'];
       if (data is! Map || data['marketData'] is! List) {
-        return left(const Failure('ساختار قیمت‌های مفید معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'ساختار قیمت‌های مفید معتبر نیست.',
+            response,
+          ),
+        );
       }
 
       final quotes = <String, PortfolioQuote>{};
@@ -155,8 +171,14 @@ class MofidPortfolioRepositoryImpl implements MofidPortfolioSource {
         }
       }
       return right(quotes);
-    } catch (error) {
-      return left(Failure('دریافت قیمت نمادها ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'دریافت قیمت نمادها ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 

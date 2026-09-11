@@ -35,7 +35,10 @@ class _MofidLoginPageState extends State<MofidLoginPage> {
             }
             if (state is AuthenticationError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+                SnackBar(
+                  duration: const Duration(minutes: 5),
+                  content: Text(state.message),
+                ),
               );
             }
           },
@@ -56,6 +59,16 @@ class _MofidLoginPageState extends State<MofidLoginPage> {
                   'نام کاربری و رمز از همین صفحه به مسیر ورود مفید ارسال می‌شوند. پس از ورود موفق، اطلاعات ورود در Secure Storage گوشی ذخیره می‌شود تا دفعات بعد با اثر انگشت وارد شوید.',
                   textAlign: TextAlign.center,
                 ),
+                if (state is AuthenticationError) ...<Widget>[
+                  const SizedBox(height: 16),
+                  Card(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SelectableText(state.message),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 TextField(
                   controller: _usernameController,

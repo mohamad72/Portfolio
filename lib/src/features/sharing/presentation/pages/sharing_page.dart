@@ -50,7 +50,7 @@ class _SharingPageState extends State<SharingPage> {
                   color: Theme.of(context).colorScheme.errorContainer,
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(state.message),
+                    child: SelectableText(state.message),
                   ),
                 ),
               ],

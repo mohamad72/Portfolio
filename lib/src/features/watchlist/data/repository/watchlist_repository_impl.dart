@@ -58,8 +58,14 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
             })
             .toList(growable: false),
       );
-    } catch (error) {
-      return left(Failure('خواندن دیده‌بان ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'خواندن دیده‌بان ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -87,8 +93,14 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
           .take(30)
           .toList(growable: false);
       return right(results);
-    } catch (error) {
-      return left(Failure('جست‌وجوی نماد ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'جست‌وجوی نماد ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -101,8 +113,14 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
       }
       await _writeLocal(<WatchSymbol>[...current, symbol]);
       return right(unit);
-    } catch (error) {
-      return left(Failure('افزودن نماد به دیده‌بان ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'افزودن نماد به دیده‌بان ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -113,8 +131,14 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
       current.removeWhere((item) => item.symbolIsin == symbolIsin);
       await _writeLocal(current);
       return right(unit);
-    } catch (error) {
-      return left(Failure('حذف نماد از دیده‌بان ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'حذف نماد از دیده‌بان ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -125,7 +149,10 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
     }
     final decoded = jsonDecode(raw);
     if (decoded is! List) {
-      return <WatchSymbol>[];
+      throw FormatException(
+        'Expected a JSON array for the local watchlist. '
+        'Actual type: ${decoded.runtimeType}. Raw value: $raw',
+      );
     }
     return decoded
         .whereType<Map>()
@@ -160,7 +187,9 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
     );
     final symbols = response['symbols'];
     if (symbols is! List) {
-      throw const FormatException('Invalid symbols response.');
+      throw FormatException(
+        'Invalid symbols response. Raw response: ${jsonEncode(response)}',
+      );
     }
     return symbols
         .whereType<Map>()
@@ -193,7 +222,9 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
     );
     final data = response['data'];
     if (data is! Map || data['marketData'] is! List) {
-      return <String, (num?, double?)>{};
+      throw FormatException(
+        'Invalid market data response. Raw response: ${jsonEncode(response)}',
+      );
     }
     final result = <String, (num?, double?)>{};
     for (final raw in data['marketData'] as List) {

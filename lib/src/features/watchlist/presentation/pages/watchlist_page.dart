@@ -41,7 +41,7 @@ class _WatchlistError extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         children: <Widget>[
           const SizedBox(height: 140),
-          Text(message, textAlign: TextAlign.center),
+          SelectableText(message, textAlign: TextAlign.center),
           const SizedBox(height: 12),
           FilledButton(
             onPressed: context.read<WatchlistCubit>().load,
@@ -81,7 +81,7 @@ class _WatchlistLoadedBody extends StatelessWidget {
         ),
         if (state.message != null) ...<Widget>[
           const SizedBox(height: 8),
-          Text(
+          SelectableText(
             state.message!,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),

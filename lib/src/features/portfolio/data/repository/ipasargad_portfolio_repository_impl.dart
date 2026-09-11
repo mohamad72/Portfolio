@@ -51,6 +51,31 @@ class IPasargadPortfolioRepositoryImpl implements IPasargadPortfolioSource {
         headers: headers,
       );
 
+      if (composition['result'] is! List) {
+        return left(
+          Failure.invalidResponse(
+            'ساختار ترکیب دارایی ${account.label} معتبر نیست.',
+            composition,
+          ),
+        );
+      }
+      if (profitLoss['result'] is! List) {
+        return left(
+          Failure.invalidResponse(
+            'ساختار سود و زیان ${account.label} معتبر نیست.',
+            profitLoss,
+          ),
+        );
+      }
+      if (evidences['result'] is! List) {
+        return left(
+          Failure.invalidResponse(
+            'ساختار گواهی‌های ${account.label} معتبر نیست.',
+            evidences,
+          ),
+        );
+      }
+
       final compositionItems = _mapList(composition['result']);
       final profitItems = _mapList(profitLoss['result']);
       final evidenceItems = _mapList(evidences['result']);
@@ -115,9 +140,13 @@ class IPasargadPortfolioRepositoryImpl implements IPasargadPortfolioSource {
           syncedAt: DateTime.now(),
         ),
       );
-    } catch (error) {
+    } catch (error, stackTrace) {
       return left(
-        Failure('دریافت پرتفوی ${account.label} ناموفق بود.', cause: error),
+        Failure.detailed(
+          'دریافت پرتفوی ${account.label} ناموفق بود.',
+          error,
+          stackTrace,
+        ),
       );
     }
   }

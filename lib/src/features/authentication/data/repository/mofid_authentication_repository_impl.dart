@@ -124,10 +124,22 @@ class MofidAuthenticationRepositoryImpl implements AuthenticationRepository {
           return right(session);
         },
       );
-    } on MofidDirectLoginException catch (error) {
-      return left(Failure(error.message, cause: error));
-    } catch (error) {
-      return left(Failure('ورود مستقیم مفید ناموفق بود.', cause: error));
+    } on MofidDirectLoginException catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'ورود مستقیم مفید ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'ورود مستقیم مفید ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -149,7 +161,12 @@ class MofidAuthenticationRepositoryImpl implements AuthenticationRepository {
 
       final token = response['access_token']?.toString();
       if (token == null || token.isEmpty) {
-        return left(const Failure('توکن ورود مفید در پاسخ وجود نداشت.'));
+        return left(
+          Failure.invalidResponse(
+            'توکن ورود مفید در پاسخ وجود نداشت.',
+            response,
+          ),
+        );
       }
 
       final expiresIn = switch (response['expires_in']) {
@@ -176,30 +193,32 @@ class MofidAuthenticationRepositoryImpl implements AuthenticationRepository {
         expiresAt: expiresAt,
       );
       return right(session);
-    } catch (error) {
-      return left(Failure('تبادل توکن مفید ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'تبادل توکن مفید ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
   String _accountKeyFor(String token) {
     String stableSeed = token;
-    try {
-      final parts = token.split('.');
-      if (parts.length >= 2) {
-        final normalized = base64Url.normalize(parts[1]);
-        final payload = jsonDecode(utf8.decode(base64Url.decode(normalized)));
-        if (payload is Map) {
-          final sub = payload['sub']?.toString();
-          final pk = payload['pk']?.toString();
-          if (sub != null && sub.isNotEmpty) {
-            stableSeed = sub;
-          } else if (pk != null && pk.isNotEmpty) {
-            stableSeed = pk;
-          }
+    final parts = token.split('.');
+    if (parts.length >= 2) {
+      final normalized = base64Url.normalize(parts[1]);
+      final payload = jsonDecode(utf8.decode(base64Url.decode(normalized)));
+      if (payload is Map) {
+        final sub = payload['sub']?.toString();
+        final pk = payload['pk']?.toString();
+        if (sub != null && sub.isNotEmpty) {
+          stableSeed = sub;
+        } else if (pk != null && pk.isNotEmpty) {
+          stableSeed = pk;
         }
       }
-    } catch (_) {
-      // Opaque access tokens remain scoped by a stable local hash.
     }
     return sha256.convert(utf8.encode(stableSeed)).toString();
   }
@@ -223,13 +242,8 @@ class MofidAuthenticationRepositoryImpl implements AuthenticationRepository {
       await _credentialStore.read() != null;
 
   @override
-  Future<bool> canAuthenticateWithBiometrics() async {
-    try {
-      return await _biometricAuthenticator.canAuthenticate();
-    } catch (_) {
-      return false;
-    }
-  }
+  Future<bool> canAuthenticateWithBiometrics() =>
+      _biometricAuthenticator.canAuthenticate();
 
   @override
   Future<Either<Failure, Unit>> authenticateWithBiometrics() async {
@@ -239,8 +253,14 @@ class MofidAuthenticationRepositoryImpl implements AuthenticationRepository {
         return left(const Failure('اثر انگشت تأیید نشد.'));
       }
       return right(unit);
-    } catch (error) {
-      return left(Failure('احراز هویت بیومتریک ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'احراز هویت بیومتریک ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 

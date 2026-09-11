@@ -35,7 +35,12 @@ class PreferencesLocalPortfolioRepositoryImpl
       }
       final decoded = jsonDecode(raw);
       if (decoded is! List) {
-        return left(const Failure('دادهٔ سبدهای محلی معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'دادهٔ سبدهای محلی معتبر نیست.',
+            decoded,
+          ),
+        );
       }
       return right(
         decoded
@@ -50,8 +55,14 @@ class PreferencesLocalPortfolioRepositoryImpl
             .where((item) => item.id.isNotEmpty && item.name.isNotEmpty)
             .toList(growable: false),
       );
-    } catch (error) {
-      return left(Failure('خواندن سبدهای محلی ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'خواندن سبدهای محلی ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -77,8 +88,14 @@ class PreferencesLocalPortfolioRepositoryImpl
         jsonEncode(updated.map((item) => item.toJson()).toList()),
       );
       return right(unit);
-    } catch (error) {
-      return left(Failure('ذخیرهٔ سبد محلی ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'ذخیرهٔ سبد محلی ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -113,8 +130,14 @@ class PreferencesLocalPortfolioRepositoryImpl
         jsonEncode(allocations.map((item) => item.toJson()).toList()),
       );
       return right(unit);
-    } catch (error) {
-      return left(Failure('حذف سبد محلی ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'حذف سبد محلی ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -127,7 +150,12 @@ class PreferencesLocalPortfolioRepositoryImpl
       }
       final decoded = jsonDecode(raw);
       if (decoded is! List) {
-        return left(const Failure('دادهٔ تخصیص‌ها معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'دادهٔ تخصیص‌ها معتبر نیست.',
+            decoded,
+          ),
+        );
       }
       return right(
         decoded
@@ -145,8 +173,14 @@ class PreferencesLocalPortfolioRepositoryImpl
             )
             .toList(growable: false),
       );
-    } catch (error) {
-      return left(Failure('خواندن تخصیص‌ها ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'خواندن تخصیص‌ها ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -172,8 +206,14 @@ class PreferencesLocalPortfolioRepositoryImpl
         jsonEncode(updated.map((item) => item.toJson()).toList()),
       );
       return right(unit);
-    } catch (error) {
-      return left(Failure('ذخیرهٔ تخصیص دارایی ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'ذخیرهٔ تخصیص دارایی ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 }

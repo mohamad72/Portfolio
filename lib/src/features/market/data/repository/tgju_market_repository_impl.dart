@@ -59,7 +59,10 @@ class TgjuMarketRepositoryImpl implements MarketRepository {
       final current = response['current'];
       if (current is! Map) {
         return Left<Failure, List<MarketPrice>>(
-          const Failure('ساختار پاسخ TGJU معتبر نیست.'),
+          Failure.invalidResponse(
+            'ساختار پاسخ TGJU معتبر نیست.',
+            response,
+          ),
         );
       }
 
@@ -85,14 +88,21 @@ class TgjuMarketRepositoryImpl implements MarketRepository {
 
       if (prices.isEmpty) {
         return Left<Failure, List<MarketPrice>>(
-          const Failure('هیچ‌کدام از قیمت‌های موردنیاز در پاسخ TGJU نبود.'),
+          Failure.invalidResponse(
+            'هیچ‌کدام از قیمت‌های موردنیاز در پاسخ TGJU نبود.',
+            response,
+          ),
         );
       }
 
       return Right<Failure, List<MarketPrice>>(prices);
-    } catch (error) {
+    } catch (error, stackTrace) {
       return Left<Failure, List<MarketPrice>>(
-        Failure('دریافت قیمت‌های بازار ناموفق بود.', cause: error),
+        Failure.detailed(
+          'دریافت قیمت‌های بازار ناموفق بود.',
+          error,
+          stackTrace,
+        ),
       );
     }
   }

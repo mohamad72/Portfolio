@@ -50,7 +50,12 @@ class AccountsPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is BrokerAccountsError) {
-            return Center(child: Text(state.message));
+            return ListView(
+              padding: const EdgeInsets.all(24),
+              children: <Widget>[
+                SelectableText(state.message, textAlign: TextAlign.center),
+              ],
+            );
           }
           final accounts = (state as BrokerAccountsLoaded).accounts;
           return ListView(

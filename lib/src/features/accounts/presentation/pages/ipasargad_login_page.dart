@@ -40,7 +40,10 @@ class _IPasargadLoginPageState extends State<IPasargadLoginPage> {
           listener: (context, state) async {
             if (state is IPasargadLoginError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+                SnackBar(
+                  duration: const Duration(minutes: 5),
+                  content: Text(state.message),
+                ),
               );
             }
             if (state is IPasargadLoginSuccess) {
@@ -64,6 +67,16 @@ class _IPasargadLoginPageState extends State<IPasargadLoginPage> {
                 const Text(
                   'این اتصال از APIهای مشاهده‌شدهٔ وب آی‌پاسارگاد استفاده می‌کند. رمز فقط برای همان درخواست ورود استفاده می‌شود و توکن نشست در Secure Storage دستگاه نگهداری می‌شود.',
                 ),
+                if (state is IPasargadLoginError) ...<Widget>[
+                  const SizedBox(height: 12),
+                  Card(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SelectableText(state.message),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 TextField(
                   controller: _labelController,

@@ -38,13 +38,24 @@ class IPasargadAuthenticationRepositoryImpl
       final salt = response['salt']?.toString() ?? '';
       final hash = response['hashedCaptcha']?.toString() ?? '';
       if (image.isEmpty || salt.isEmpty || hash.isEmpty) {
-        return left(const Failure('ساختار کپچای آی‌پاسارگاد معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'ساختار کپچای آی‌پاسارگاد معتبر نیست.',
+            response,
+          ),
+        );
       }
       return right(
         IPasargadCaptcha(imageBase64: image, salt: salt, hash: hash),
       );
-    } catch (error) {
-      return left(Failure('دریافت کپچای آی‌پاسارگاد ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'دریافت کپچای آی‌پاسارگاد ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -89,10 +100,11 @@ class IPasargadAuthenticationRepositoryImpl
       if (!success || token.isEmpty || expireIn == null || expireIn <= 0) {
         final message = response['errorMessage']?.toString().trim();
         return left(
-          Failure(
+          Failure.invalidResponse(
             message == null || message.isEmpty
                 ? 'ورود به آی‌پاسارگاد ناموفق بود.'
                 : message,
+            response,
           ),
         );
       }
@@ -114,8 +126,14 @@ class IPasargadAuthenticationRepositoryImpl
         return left(saveFailure);
       }
       return right(account);
-    } catch (error) {
-      return left(Failure('ورود به آی‌پاسارگاد ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'ورود به آی‌پاسارگاد ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 

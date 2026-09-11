@@ -32,7 +32,12 @@ class PreferencesBrokerAccountRepositoryImpl implements BrokerAccountRepository 
       }
       final decoded = jsonDecode(raw);
       if (decoded is! List) {
-        return left(const Failure('فهرست حساب‌های اضافه معتبر نیست.'));
+        return left(
+          Failure.invalidResponse(
+            'فهرست حساب‌های اضافه معتبر نیست.',
+            decoded,
+          ),
+        );
       }
       final accounts = decoded
           .whereType<Map>()
@@ -46,8 +51,14 @@ class PreferencesBrokerAccountRepositoryImpl implements BrokerAccountRepository 
           .where((item) => item.id.isNotEmpty && item.label.isNotEmpty)
           .toList(growable: false);
       return right(accounts);
-    } catch (error) {
-      return left(Failure('خواندن حساب‌های اضافه ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'خواندن حساب‌های اضافه ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -73,8 +84,14 @@ class PreferencesBrokerAccountRepositoryImpl implements BrokerAccountRepository 
         jsonEncode(accounts.map((item) => item.toJson()).toList()),
       );
       return right(unit);
-    } catch (error) {
-      return left(Failure('ذخیرهٔ حساب اضافه ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'ذخیرهٔ حساب اضافه ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 
@@ -94,8 +111,14 @@ class PreferencesBrokerAccountRepositoryImpl implements BrokerAccountRepository 
         jsonEncode(accounts.map((item) => item.toJson()).toList()),
       );
       return right(unit);
-    } catch (error) {
-      return left(Failure('حذف حساب اضافه ناموفق بود.', cause: error));
+    } catch (error, stackTrace) {
+      return left(
+        Failure.detailed(
+          'حذف حساب اضافه ناموفق بود.',
+          error,
+          stackTrace,
+        ),
+      );
     }
   }
 }
