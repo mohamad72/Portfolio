@@ -22,6 +22,7 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   var _index = 0;
+  var _biometricAutoPrompted = false;
 
   static const List<String> _titles = <String>[
     'پرتفوی',
@@ -34,6 +35,15 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     return BlocListener<AuthenticationCubit, AuthenticationState>(
       listener: (context, state) {
+        if (state is AuthenticationBiometricRequired &&
+            !_biometricAutoPrompted) {
+          _biometricAutoPrompted = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              context.read<AuthenticationCubit>().unlockWithBiometrics();
+            }
+          });
+        }
         if (state is AuthenticationSignedIn) {
           context.read<BrokerAccountsCubit>().load();
           context.read<PortfolioCubit>().load();
@@ -138,9 +148,45 @@ class _AuthenticatedFeature extends StatelessWidget {
           return child;
         }
         if (state is AuthenticationUnknown ||
-            state is AuthenticationCompleting) {
+            state is AuthenticationLoggingIn ||
+            state is AuthenticationBiometricAuthenticating) {
           return const Center(child: CircularProgressIndicator());
         }
+        if (state is AuthenticationBiometricRequired) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Icon(Icons.fingerprint, size: 56),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.message ??
+                        'اطلاعات ورود مفید روی این گوشی ذخیره شده است. برای باز کردن پرتفوی اثر انگشت را تأیید کنید.',
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: () => context
+                        .read<AuthenticationCubit>()
+                        .unlockWithBiometrics(),
+                    icon: const Icon(Icons.fingerprint),
+                    label: const Text('ورود با اثر انگشت'),
+                  ),
+                  TextButton(
+                    onPressed: onLogin,
+                    child: const Text('ورود دستی'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final message = state is AuthenticationError
+            ? state.message
+            : 'برای مشاهدهٔ اطلاعات حساب و نمادهای مفید، ابتدا وارد حساب مفید شوید.';
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -149,10 +195,7 @@ class _AuthenticatedFeature extends StatelessWidget {
               children: <Widget>[
                 const Icon(Icons.lock_outline, size: 48),
                 const SizedBox(height: 16),
-                const Text(
-                  'برای مشاهدهٔ اطلاعات حساب و نمادهای مفید، ابتدا وارد حساب مفید شوید.',
-                  textAlign: TextAlign.center,
-                ),
+                Text(message, textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: onLogin,

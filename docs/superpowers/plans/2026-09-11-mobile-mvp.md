@@ -6,7 +6,7 @@
 
 **Architecture:** Keep the approved feature-first Clean structure (`data/domain/presentation`) with Cubit, `Future<Either<Failure,T>>`, generic `RemoteDataSource`, and `get_it` + `injectable`. Mofid transport contracts come only from the supplied HAR/design; when the available source is insufficient for a correct claim (execution-level trade history), the app exposes an explicit unavailable-data state instead of fabricating behavior.
 
-**Tech Stack:** Flutter stable, Dart >=3.12, flutter_bloc, dartz, get_it, injectable, Dio, equatable, shared_preferences, flutter_secure_storage, webview_flutter, crypto, path_provider.
+**Tech Stack:** Flutter stable, Dart >=3.12, flutter_bloc, dartz, get_it, injectable, Dio, equatable, shared_preferences, flutter_secure_storage, local_auth, dio_cookie_manager, cookie_jar, html, crypto, path_provider.
 
 **Spec:** `docs/superpowers/specs/2026-09-11-portfolio-design.md`
 
@@ -60,7 +60,7 @@
 - Client `easy_pkce`, redirect `https://m.easytrader.ir/auth-callback`, scopes `easy2_api mts_api openid profile login_delegation-api`.
 
 - [ ] Test verifier/challenge/state generation format.
-- [ ] Implement login request generation and WebView callback interception.
+- [ ] Implement direct HTTP Mofid login: PKCE authorize request, anti-forgery extraction, credential POST, callback validation, token exchange, secure credential persistence, and biometric re-entry.
 - [ ] Validate state before code exchange; reject missing/mismatched state.
 - [ ] Run auth tests.
 

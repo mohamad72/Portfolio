@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/login_request.dart';
-
 sealed class AuthenticationState extends Equatable {
   const AuthenticationState();
 
@@ -17,22 +15,21 @@ final class AuthenticationSignedOut extends AuthenticationState {
   const AuthenticationSignedOut();
 }
 
-final class AuthenticationLoginReady extends AuthenticationState {
-  const AuthenticationLoginReady(this.request);
-
-  final LoginRequest request;
-
-  @override
-  List<Object?> get props => <Object?>[request];
+final class AuthenticationLoggingIn extends AuthenticationState {
+  const AuthenticationLoggingIn();
 }
 
-final class AuthenticationCompleting extends AuthenticationState {
-  const AuthenticationCompleting(this.request);
+final class AuthenticationBiometricRequired extends AuthenticationState {
+  const AuthenticationBiometricRequired({this.message});
 
-  final LoginRequest request;
+  final String? message;
 
   @override
-  List<Object?> get props => <Object?>[request];
+  List<Object?> get props => <Object?>[message];
+}
+
+final class AuthenticationBiometricAuthenticating extends AuthenticationState {
+  const AuthenticationBiometricAuthenticating();
 }
 
 final class AuthenticationSignedIn extends AuthenticationState {

@@ -34,7 +34,7 @@ class SettingsPage extends StatelessWidget {
                     title: const Text('اتصال مفید'),
                     subtitle: Text(
                       signedIn
-                          ? 'نشست روی این دستگاه ذخیره شده است.'
+                          ? 'نشست و اطلاعات ورود امن روی این دستگاه آماده است؛ اجرای بعدی با اثر انگشت باز می‌شود.'
                           : 'وارد نشده‌اید.',
                     ),
                   ),
@@ -43,12 +43,25 @@ class SettingsPage extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity,
                       child: signedIn
-                          ? OutlinedButton.icon(
-                              onPressed: () => context
-                                  .read<AuthenticationCubit>()
-                                  .logout(),
-                              icon: const Icon(Icons.logout),
-                              label: const Text('خروج و حذف نشست'),
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                OutlinedButton.icon(
+                                  onPressed: () => context
+                                      .read<AuthenticationCubit>()
+                                      .logout(),
+                                  icon: const Icon(Icons.logout),
+                                  label: const Text('خروج از نشست'),
+                                ),
+                                const SizedBox(height: 8),
+                                TextButton.icon(
+                                  onPressed: () => context
+                                      .read<AuthenticationCubit>()
+                                      .logout(forgetCredentials: true),
+                                  icon: const Icon(Icons.delete_outline),
+                                  label: const Text('خروج و حذف ورود ذخیره‌شده'),
+                                ),
+                              ],
                             )
                           : FilledButton.icon(
                               onPressed: onLogin,
@@ -163,7 +176,7 @@ class SettingsPage extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'امنیت ورود: رمز مفید ذخیره نمی‌شود. برای آی‌پاسارگاد رمز فقط هنگام درخواست ورود استفاده می‌شود و توکن نشست در Secure Storage می‌ماند. یوزر/پس اشتراک‌گذاری پرتفوی جدا از حساب‌های سرمایه‌گذاری و عمداً داخل کد ثابت است.',
+              'امنیت ورود: ورود مفید مستقیماً با HTTP/API انجام می‌شود. پس از ورود موفق، نام کاربری و رمز مفید در Secure Storage گوشی نگهداری می‌شوند و اجرای بعدی با local biometric باز می‌شود؛ اگر توکن منقضی شده باشد، پس از اثر انگشت ورود API با credential ذخیره‌شده تکرار می‌شود. یوزر/پس اشتراک‌گذاری پرتفوی جدا از حساب‌های سرمایه‌گذاری و عمداً داخل کد ثابت است.',
             ),
           ),
         ),

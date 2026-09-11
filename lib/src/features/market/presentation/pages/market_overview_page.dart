@@ -49,7 +49,7 @@ class _LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return const ListView(
       physics: AlwaysScrollableScrollPhysics(),
       children: <Widget>[
         SizedBox(height: 220),

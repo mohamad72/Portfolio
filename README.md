@@ -5,8 +5,8 @@
 ## آنچه در این نسخه پیاده شده است
 
 - معماری feature-first با `data / domain / presentation`، مدیریت state با Cubit، خروجی Repositoryها با `Future<Either<Failure, T>>` و DI با `get_it + injectable`.
-- ورود خواندنی مفید با قرارداد OIDC Authorization Code + PKCE مشاهده‌شده؛ ورود داخل WebView خود مفید انجام می‌شود و نام کاربری/رمز در اپ ذخیره نمی‌شود.
-- نگهداری access token و شناسهٔ مشتق‌شدهٔ حساب در `flutter_secure_storage`، همراه زمان انقضای نشست.
+- ورود مستقیم مفید بدون مرورگر داخلی: اپ با HTTP قرارداد OIDC Authorization Code + PKCE مشاهده‌شده را اجرا می‌کند، صفحهٔ Login را برای anti-forgery token می‌گیرد، `POST /Login` را با نام کاربری/رمز می‌فرستد، callback را دنبال می‌کند و کد را با `POST /connect/token` به access token تبدیل می‌کند.
+- نگهداری access token، شناسهٔ مشتق‌شدهٔ حساب و نام کاربری/رمز مفید در `flutter_secure_storage`. در اجرای بعدی اپ، `local_auth` اثر انگشت را درخواست می‌کند؛ اگر token هنوز معتبر باشد همان نشست باز می‌شود و اگر منقضی شده باشد پس از تأیید اثر انگشت، Login مستقیم با credential ذخیره‌شده تکرار می‌شود.
 - دریافت موجودی جاری از `/assetmodule/api/performance`، قدرت خرید گزارش‌شده از `/easy/api/money` و قیمت نمادها از `/symbols/api/marketdata`.
 - بخش «افزودن اکانت» بعد از ورود مفید؛ در این فاز فقط آی‌پاسارگاد قابل افزودن است و معماری برای Providerهای بعدی آماده است.
 - ورود آی‌پاسارگاد با قرارداد واقعی کپچا + `POST /Account/Login` استخراج‌شده از HAR؛ token نشست در Secure Storage نگهداری می‌شود و در APIهای بعدی به‌صورت cookie `otauth-FU` ارسال می‌شود.
@@ -40,7 +40,7 @@
 flutter run
 ```
 
-اسکریپت `tool/bootstrap.sh` در صورت نبود `android/` آن را با شناسهٔ `com.mohamad72.portfolio` می‌سازد، مجوز اینترنت را اضافه می‌کند، cleartext HTTP را برای اتصال LAN فعال می‌کند، packageها را می‌گیرد و فایل‌های DI را تولید می‌کند.
+اسکریپت `tool/bootstrap.sh` در صورت نبود `android/` آن را با شناسهٔ `com.mohamad72.portfolio` می‌سازد، مجوز اینترنت و biometric را اضافه می‌کند، `MainActivity` را برای `local_auth` به `FlutterFragmentActivity` تبدیل می‌کند، حداقل Android SDK را 24 می‌گذارد، cleartext HTTP را برای اتصال LAN فعال می‌کند، packageها را می‌گیرد و فایل‌های DI را تولید می‌کند.
 
 برای verification کامل:
 

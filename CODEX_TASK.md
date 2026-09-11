@@ -13,7 +13,8 @@ Repository را روی branch جدا از `main` باز کن و ابتدا `docs
 5. `flutter build apk --debug`
 6. هر خطای compile/test را با کمترین تغییر و بدون شکستن معماری `data/domain/presentation` اصلاح کن.
 7. در پایان، diff را برای secretها (`Bearer`, token واقعی، password، cookie، HAR) بررسی کن.
-8. نتیجهٔ واقعی پنج فرمان بالا و مسیر APK را در PR بنویس. اگر ورود واقعی مفید روی محیط cloud قابل آزمون نیست، آن را صریحاً unverified نگه دار.
+8. نتیجهٔ واقعی پنج فرمان بالا و مسیر APK را در PR بنویس. ورود مفید باید بدون browser UI باشد: `GET authorize -> Login HTML/anti-forgery -> POST /Login -> authorize callback -> POST /connect/token`. اگر ورود واقعی مفید روی محیط cloud قابل آزمون نیست، آن را صریحاً unverified نگه دار.
+9. بررسی کن `local_auth` روی Android با `FlutterFragmentActivity`، `USE_BIOMETRIC` و minSdk 24 bootstrap می‌شود و startup gate در صورت credential ذخیره‌شده اثر انگشت می‌خواهد.
 
 محدودیت‌های محصول را دور نزن: execution-level trade history هنوز قرارداد کافی ندارد، بنابراین سود تاریخی واقعی را جعل نکن. اشتراک‌گذاری این نسخه عمداً backend ندارد و با HTTP server محلی روی پورت 8787 و Basic Auth ثابت `viewer / portfolio123` پیاده شده است؛ فقط روی شبکهٔ محلی verification شود و آن را به‌عنوان اشتراک اینترنتی معرفی نکن.
 
