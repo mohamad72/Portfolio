@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../shared/network/browser_user_agent.dart';
+
 import 'mofid_login_html_parser.dart';
 
 abstract interface class MofidLoginRemoteDataSource {
@@ -24,6 +26,7 @@ class DioMofidLoginRemoteDataSource implements MofidLoginRemoteDataSource {
             receiveTimeout: const Duration(seconds: 20),
             sendTimeout: const Duration(seconds: 10),
             headers: const <String, dynamic>{
+              'User-Agent': browserUserAgent,
               'Accept': 'text/html,application/xhtml+xml,application/json',
             },
           ),
