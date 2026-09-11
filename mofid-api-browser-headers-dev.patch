@@ -1,0 +1,101 @@
+diff --git a/lib/src/features/portfolio/data/repository/mofid_portfolio_repository_impl.dart b/lib/src/features/portfolio/data/repository/mofid_portfolio_repository_impl.dart
+index 5326a00..2532ca2 100644
+--- a/lib/src/features/portfolio/data/repository/mofid_portfolio_repository_impl.dart
++++ b/lib/src/features/portfolio/data/repository/mofid_portfolio_repository_impl.dart
+@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
+ import 'package:injectable/injectable.dart';
+ 
+ import '../../../../shared/error/failure.dart';
++import '../../../../shared/network/mofid_api_headers.dart';
+ import '../../../../shared/network/remote_data_source.dart';
+ import '../../../../shared/security/secure_session_store.dart';
+ import '../../domain/entities/account_snapshot.dart';
+@@ -14,12 +15,7 @@ class MofidPortfolioRepositoryImpl {
+     if (token == null || token.isEmpty) {
+       return null;
+     }
+-    return <String, dynamic>{
+-      'Authorization': 'Bearer $token',
+-      'Accept': 'application/json',
+-      'Origin': 'https://m.easytrader.ir',
+-      'Referer': 'https://m.easytrader.ir/',
+-    };
++    return mofidApiHeaders(token);
+   }
+ 
+   num? _num(Object? value) {
+diff --git a/lib/src/features/watchlist/data/repository/watchlist_repository_impl.dart b/lib/src/features/watchlist/data/repository/watchlist_repository_impl.dart
+index 3f1544c..bd73e48 100644
+--- a/lib/src/features/watchlist/data/repository/watchlist_repository_impl.dart
++++ b/lib/src/features/watchlist/data/repository/watchlist_repository_impl.dart
+@@ -5,17 +5,13 @@ import 'package:injectable/injectable.dart';
+ import 'package:shared_preferences/shared_preferences.dart';
+ 
+ import '../../../../shared/error/failure.dart';
++import '../../../../shared/network/mofid_api_headers.dart';
+ import '../../../../shared/network/remote_data_source.dart';
+ import '../../../../shared/security/secure_session_store.dart';
+ import '../../domain/entities/watch_symbol.dart';
+ import '../../domain/repository/watchlist_repository.dart';
+ 
+ class WatchlistRepositoryImpl {
+-  Map<String, dynamic> _headers(String token) => <String, dynamic>{
+-        'Authorization': 'Bearer $token',
+-        'Accept': 'application/json',
+-        'Origin': 'https://m.easytrader.ir',
+-        'Referer': 'https://m.easytrader.ir/',
+-      };
++  Map<String, dynamic> _headers(String token) => mofidApiHeaders(token);
+ 
+   num? _num(Object? value) {
+diff --git a/lib/src/shared/network/mofid_api_headers.dart b/lib/src/shared/network/mofid_api_headers.dart
+new file mode 100644
+index 0000000..5888d36
+--- /dev/null
++++ b/lib/src/shared/network/mofid_api_headers.dart
+@@ -0,0 +1,17 @@
++const String mofidBrowserUserAgent =
++    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:155.0) '
++    'Gecko/20100101 Firefox/155.0';
++
++Map<String, dynamic> mofidApiHeaders(String accessToken) {
++  return <String, dynamic>{
++    'Authorization': 'Bearer $accessToken',
++    'Accept': 'application/json, text/plain, */*',
++    'Accept-Language': 'fa',
++    'Origin': 'https://m.easytrader.ir',
++    'Referer': 'https://m.easytrader.ir/',
++    'User-Agent': mofidBrowserUserAgent,
++    'Sec-Fetch-Dest': 'empty',
++    'Sec-Fetch-Mode': 'cors',
++    'Sec-Fetch-Site': 'same-site',
++  };
++}
+diff --git a/test/shared/network/mofid_api_headers_test.dart b/test/shared/network/mofid_api_headers_test.dart
+new file mode 100644
+index 0000000..5a93fd4
+--- /dev/null
++++ b/test/shared/network/mofid_api_headers_test.dart
+@@ -0,0 +1,22 @@
++import 'package:flutter_test/flutter_test.dart';
++import 'package:portfolio/src/shared/network/mofid_api_headers.dart';
++
++void main() {
++  test('mofidApiHeaders matches the browser request shape captured in HAR', () {
++    final headers = mofidApiHeaders('token-value');
++
++    expect(headers['Authorization'], 'Bearer token-value');
++    expect(headers['Accept'], 'application/json, text/plain, */*');
++    expect(headers['Accept-Language'], 'fa');
++    expect(headers['Origin'], 'https://m.easytrader.ir');
++    expect(headers['Referer'], 'https://m.easytrader.ir/');
++    expect(
++      headers['User-Agent'],
++      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:155.0) '
++      'Gecko/20100101 Firefox/155.0',
++    );
++    expect(headers['Sec-Fetch-Dest'], 'empty');
++    expect(headers['Sec-Fetch-Mode'], 'cors');
++    expect(headers['Sec-Fetch-Site'], 'same-site');
++  });
++}
