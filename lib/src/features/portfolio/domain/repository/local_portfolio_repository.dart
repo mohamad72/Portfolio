@@ -13,8 +13,8 @@ abstract interface class LocalPortfolioRepository {
 
   Future<Either<Failure, List<HoldingAllocation>>> getAllocations();
 
-  Future<Either<Failure, Unit>> replaceSymbolAllocations(
-    String symbolIsin,
+  Future<Either<Failure, Unit>> replaceHoldingAllocations(
+    String holdingKey,
     List<HoldingAllocation> allocations,
   );
 }

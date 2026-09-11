@@ -25,26 +25,32 @@ class MarkdownPortfolioExporter {
       ..writeln('# پرتفوی — $title')
       ..writeln()
       ..writeln('- واحد پول: تومان')
-      ..writeln('- زمان همگام‌سازی حساب: ${snapshot.syncedAt.toIso8601String()}')
-      ..writeln('- مبنای قیمت فروش: بهترین سفارش خرید در صورت وجود؛ در غیر این صورت آخرین معامله/قیمت پایانی با برچسب منبع')
+      ..writeln('- زمان همگام‌سازی حساب‌ها: ${snapshot.syncedAt.toIso8601String()}')
+      ..writeln('- دارایی‌های هم‌نام در حساب‌های مختلف جداگانه گزارش می‌شوند.')
       ..writeln(
         '- ارزش سهام این نما: ${holdingsValue == null ? 'ناموجود' : '${_formatNumber(holdingsValue)} تومان'}',
       );
 
     if (title == 'کل دارایی') {
       buffer
-        ..writeln('- قدرت خرید گزارش‌شده: ${_formatNumber(snapshot.buyingPowerToman)} تومان')
-        ..writeln('- ارزش کل حساب: دادهٔ کافی نداریم (قدرت خرید لزوماً وجه نقد مالکانه نیست).');
+        ..writeln('- قدرت خرید مفید: ${_formatNumber(snapshot.buyingPowerToman)} تومان')
+        ..writeln('- قدرت خرید سایر ارائه‌دهندگان فقط در صورت وجود قرارداد معتبر جداگانه اضافه می‌شود.');
+    }
+
+    if (snapshot.warnings.isNotEmpty) {
+      buffer
+        ..writeln('- هشدارهای همگام‌سازی:')
+        ..writeln(snapshot.warnings.map((item) => '  - $item').join('\n'));
     }
 
     buffer
       ..writeln()
-      ..writeln('| نماد | تعداد | قیمت مبنا (تومان) | ارزش (تومان) | مبنای قیمت |')
-      ..writeln('|---|---:|---:|---:|---|');
+      ..writeln('| حساب | نماد | تعداد | قیمت مبنا (تومان) | ارزش (تومان) | مبنای قیمت |')
+      ..writeln('|---|---|---:|---:|---:|---|');
 
     for (final holding in holdings) {
       buffer.writeln(
-        '| ${holding.symbolName} | ${_formatNumber(holding.quantity)} | '
+        '| ${holding.accountLabel} | ${holding.symbolName} | ${_formatNumber(holding.quantity)} | '
         '${holding.marketPriceBasis == MarketPriceBasis.unavailable ? 'ناموجود' : _formatNumber(holding.marketPriceToman)} | '
         '${holding.currentValueToman == null ? 'ناموجود' : _formatNumber(holding.currentValueToman!)} | '
         '${_basisLabel(holding.marketPriceBasis)} |',
@@ -53,9 +59,9 @@ class MarkdownPortfolioExporter {
 
     buffer
       ..writeln()
-      ..writeln('> سود واقعی امروز/هفته/ماه فقط زمانی نمایش یا صادر می‌شود که تاریخچهٔ اجرای معاملات و جریان‌های نقدی برای همان بازه کافی باشد. در نسخهٔ فعلی، دادهٔ اجرای مستقل معاملات از منبع موجود قابل اثبات نیست.')
+      ..writeln('> سود واقعی امروز/هفته/ماه فقط زمانی نمایش یا صادر می‌شود که تاریخچهٔ اجرای معاملات و جریان‌های نقدی برای همان بازه کافی باشد.')
       ..writeln()
-      ..writeln('منابع: مفید برای موجودی و قیمت نمادهای بورسی؛ TGJU برای اقلام عمومی بازار.');
+      ..writeln('منابع: مفید و آی‌پاسارگاد برای موجودی حساب‌های متصل؛ TGJU برای اقلام عمومی بازار.');
 
     return buffer.toString();
   }
@@ -64,6 +70,7 @@ class MarkdownPortfolioExporter {
         MarketPriceBasis.bestBuyOrder => 'بهترین سفارش خرید',
         MarketPriceBasis.lastTrade => 'آخرین معامله',
         MarketPriceBasis.closingPrice => 'قیمت پایانی',
+        MarketPriceBasis.sourceSellPrice => 'قیمت فروش/ابطال منبع',
         MarketPriceBasis.unavailable => 'ناموجود',
       };
 

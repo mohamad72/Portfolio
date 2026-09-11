@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:portfolio/src/features/accounts/domain/entities/broker_provider.dart';
 import 'package:portfolio/src/features/export/domain/markdown_portfolio_exporter.dart';
 import 'package:portfolio/src/features/portfolio/domain/entities/account_snapshot.dart';
 import 'package:portfolio/src/features/portfolio/domain/entities/portfolio_holding.dart';
@@ -6,8 +7,11 @@ import 'package:portfolio/src/features/portfolio/domain/entities/portfolio_holdi
 void main() {
   const exporter = MarkdownPortfolioExporter();
 
-  test('exports portfolio data without authentication secrets', () {
+  test('exports portfolio data with account source and without secrets', () {
     const holding = PortfolioHolding(
+      accountId: 'mofid-primary',
+      accountLabel: 'مفید',
+      provider: BrokerProvider.mofid,
       symbolIsin: 'IRTKMOFD0001',
       symbolName: 'عیار',
       quantity: 10,
@@ -28,6 +32,7 @@ void main() {
 
     expect(markdown, contains('کل دارایی'));
     expect(markdown, contains('عیار'));
+    expect(markdown, contains('مفید'));
     expect(markdown.toLowerCase(), isNot(contains('access_token')));
     expect(markdown.toLowerCase(), isNot(contains('password')));
     expect(markdown.toLowerCase(), isNot(contains('authorization')));

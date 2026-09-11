@@ -8,12 +8,14 @@ class AccountSnapshot extends Equatable {
     required this.buyingPowerToman,
     required this.syncedAt,
     this.ayarPriceToman,
+    this.warnings = const <String>[],
   });
 
   final List<PortfolioHolding> holdings;
   final num buyingPowerToman;
   final DateTime syncedAt;
   final num? ayarPriceToman;
+  final List<String> warnings;
 
   num? get holdingsValueToman {
     var total = 0.0;
@@ -41,5 +43,6 @@ class AccountSnapshot extends Equatable {
         buyingPowerToman,
         syncedAt,
         ayarPriceToman,
+        warnings,
       ];
 }

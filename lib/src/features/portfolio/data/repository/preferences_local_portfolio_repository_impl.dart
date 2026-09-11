@@ -141,7 +141,7 @@ class PreferencesLocalPortfolioRepositoryImpl
             )
             .where(
               (item) =>
-                  item.portfolioId.isNotEmpty && item.symbolIsin.isNotEmpty,
+                  item.portfolioId.isNotEmpty && item.holdingKey.isNotEmpty,
             )
             .toList(growable: false),
       );
@@ -151,8 +151,8 @@ class PreferencesLocalPortfolioRepositoryImpl
   }
 
   @override
-  Future<Either<Failure, Unit>> replaceSymbolAllocations(
-    String symbolIsin,
+  Future<Either<Failure, Unit>> replaceHoldingAllocations(
+    String holdingKey,
     List<HoldingAllocation> allocations,
   ) async {
     final currentResult = await getAllocations();
@@ -165,7 +165,7 @@ class PreferencesLocalPortfolioRepositoryImpl
       final updated = List<HoldingAllocation>.from(
         currentResult.getOrElse(() => const <HoldingAllocation>[]),
       )
-        ..removeWhere((item) => item.symbolIsin == symbolIsin)
+        ..removeWhere((item) => item.holdingKey == holdingKey)
         ..addAll(allocations.where((item) => item.quantity > 0));
       await _preferences.setString(
         await _scopedKey(_allocationsKey),
@@ -173,7 +173,7 @@ class PreferencesLocalPortfolioRepositoryImpl
       );
       return right(unit);
     } catch (error) {
-      return left(Failure('ذخیرهٔ تخصیص نماد ناموفق بود.', cause: error));
+      return left(Failure('ذخیرهٔ تخصیص دارایی ناموفق بود.', cause: error));
     }
   }
 }

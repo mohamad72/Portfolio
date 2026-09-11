@@ -1,7 +1,7 @@
 name: portfolio
-description: Personal investment portfolio tracker for Mofid + TGJU market data.
+description: Multi-account investment portfolio tracker for Mofid, iPasargad, and TGJU market data.
 publish_to: "none"
-version: 0.3.0+3
+version: 0.4.0+4
 
 environment:
   sdk: ">=3.12.0 <4.0.0"

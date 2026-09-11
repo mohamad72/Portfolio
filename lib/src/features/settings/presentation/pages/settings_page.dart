@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../accounts/presentation/manager/broker_accounts_cubit.dart';
+import '../../../accounts/presentation/manager/broker_accounts_state.dart';
+import '../../../accounts/presentation/pages/accounts_page.dart';
+import '../../../portfolio/presentation/manager/portfolio_cubit.dart';
 import '../../../authentication/presentation/manager/authentication_cubit.dart';
 import '../../../authentication/presentation/manager/authentication_state.dart';
 import '../../../sharing/presentation/manager/sharing_cubit.dart';
@@ -59,6 +63,48 @@ class SettingsPage extends StatelessWidget {
           },
         ),
         const SizedBox(height: 8),
+        BlocBuilder<AuthenticationCubit, AuthenticationState>(
+          builder: (context, authState) {
+            if (authState is! AuthenticationSignedIn) {
+              return const SizedBox.shrink();
+            }
+            return BlocBuilder<BrokerAccountsCubit, BrokerAccountsState>(
+              builder: (context, state) {
+                final count = state is BrokerAccountsLoaded
+                    ? state.accounts.length
+                    : 0;
+                return Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.add_card_outlined),
+                    title: const Text('افزودن اکانت'),
+                    subtitle: Text(
+                      count == 0
+                          ? 'اتصال حساب آی‌پاسارگاد به پرتفوی'
+                          : '$count حساب اضافه متصل است؛ فعلاً فقط آی‌پاسارگاد',
+                    ),
+                    trailing: const Icon(Icons.chevron_left),
+                    onTap: () => Navigator.of(context).push<void>(
+                      MaterialPageRoute<void>(
+                        builder: (_) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider<BrokerAccountsCubit>.value(
+                              value: context.read<BrokerAccountsCubit>(),
+                            ),
+                            BlocProvider<PortfolioCubit>.value(
+                              value: context.read<PortfolioCubit>(),
+                            ),
+                          ],
+                          child: const AccountsPage(),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        const SizedBox(height: 8),
         BlocBuilder<SharingCubit, SharingState>(
           builder: (context, state) {
             final hosting = state is SharingHosting;
@@ -94,7 +140,7 @@ class SettingsPage extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '• موجودی و قیمت جاری: از APIهای خواندنی مفید؛ تطبیق ریال/تومان مفید باید روی دستگاه کنترل شود.',
+                  '• موجودی جاری: مفید + حساب‌های افزوده‌شدهٔ آی‌پاسارگاد؛ دارایی هم‌نام در هر حساب کارت جدا دارد.',
                 ),
                 Text(
                   '• دلار و طلای ۱۸ عیار: TGJU با تبدیل واحد تأییدشده به تومان.',
@@ -117,7 +163,7 @@ class SettingsPage extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Text(
-              'امنیت مفید: رمز مفید در اپ ذخیره نمی‌شود. ورود داخل صفحهٔ خود مفید انجام می‌شود و فقط نشست دریافت‌شده در Secure Storage دستگاه نگهداری می‌شود. یوزر/پس اشتراک‌گذاری پرتفوی جدا از حساب مفید و عمداً داخل کد ثابت است.',
+              'امنیت ورود: رمز مفید ذخیره نمی‌شود. برای آی‌پاسارگاد رمز فقط هنگام درخواست ورود استفاده می‌شود و توکن نشست در Secure Storage می‌ماند. یوزر/پس اشتراک‌گذاری پرتفوی جدا از حساب‌های سرمایه‌گذاری و عمداً داخل کد ثابت است.',
             ),
           ),
         ),

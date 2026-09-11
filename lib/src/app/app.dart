@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../features/accounts/presentation/manager/broker_accounts_cubit.dart';
 import '../features/authentication/presentation/manager/authentication_cubit.dart';
 import '../features/market/presentation/manager/market_cubit.dart';
 import '../features/portfolio/presentation/manager/portfolio_cubit.dart';
@@ -15,6 +16,7 @@ class PortfolioApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authenticationCubit = getIt<AuthenticationCubit>()..checkSession();
+    final brokerAccountsCubit = getIt<BrokerAccountsCubit>()..load();
     final portfolioCubit = getIt<PortfolioCubit>();
     final watchlistCubit = getIt<WatchlistCubit>();
     final sharingCubit = getIt<SharingCubit>();
@@ -22,6 +24,7 @@ class PortfolioApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthenticationCubit>.value(value: authenticationCubit),
+        BlocProvider<BrokerAccountsCubit>.value(value: brokerAccountsCubit),
         BlocProvider<PortfolioCubit>.value(value: portfolioCubit),
         BlocProvider<WatchlistCubit>.value(value: watchlistCubit),
         BlocProvider<SharingCubit>.value(value: sharingCubit),

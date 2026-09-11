@@ -1,3 +1,4 @@
+import '../../../accounts/domain/entities/broker_provider.dart';
 import '../../../portfolio/domain/entities/account_snapshot.dart';
 import '../../../portfolio/domain/entities/holding_allocation.dart';
 import '../../../portfolio/domain/entities/local_portfolio.dart';
@@ -68,6 +69,11 @@ class SharedPortfolioBundleModel {
           buyingPowerToman: _num(json['buyingPowerToman']) ?? 0,
           syncedAt: syncedAt,
           ayarPriceToman: _num(json['ayarPriceToman']),
+          warnings: (json['warnings'] is List)
+              ? (json['warnings'] as List)
+                  .map((item) => item.toString())
+                  .toList(growable: false)
+              : const <String>[],
         ),
         portfolios: portfolios,
         allocations: allocations,
@@ -79,11 +85,12 @@ class SharedPortfolioBundleModel {
   SharedPortfolioBundle toDomain() => bundle;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'version': 1,
+        'version': 2,
         'publishedAt': bundle.publishedAt.toIso8601String(),
         'syncedAt': bundle.snapshot.syncedAt.toIso8601String(),
         'buyingPowerToman': bundle.snapshot.buyingPowerToman,
         'ayarPriceToman': bundle.snapshot.ayarPriceToman,
+        'warnings': bundle.snapshot.warnings,
         'holdings': bundle.snapshot.holdings
             .map(_holdingToJson)
             .toList(growable: false),
@@ -96,6 +103,10 @@ class SharedPortfolioBundleModel {
 
   static Map<String, dynamic> _holdingToJson(PortfolioHolding holding) =>
       <String, dynamic>{
+        'accountId': holding.accountId,
+        'accountLabel': holding.accountLabel,
+        'provider': holding.provider.name,
+        'holdingKey': holding.holdingKey,
         'symbolIsin': holding.symbolIsin,
         'symbolName': holding.symbolName,
         'quantity': holding.quantity,
@@ -111,7 +122,14 @@ class SharedPortfolioBundleModel {
     final basis = MarketPriceBasis.values
         .where((item) => item.name == basisName)
         .firstOrNull;
+    final providerName = json['provider']?.toString();
+    final provider = BrokerProvider.values
+        .where((item) => item.name == providerName)
+        .firstOrNull;
     return PortfolioHolding(
+      accountId: json['accountId']?.toString() ?? 'mofid-primary',
+      accountLabel: json['accountLabel']?.toString() ?? 'مفید',
+      provider: provider ?? BrokerProvider.mofid,
       symbolIsin: json['symbolIsin']?.toString() ?? '',
       symbolName: json['symbolName']?.toString() ?? '',
       quantity: _num(json['quantity']) ?? 0,

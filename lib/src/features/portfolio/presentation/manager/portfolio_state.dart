@@ -72,7 +72,7 @@ final class PortfolioLoaded extends PortfolioState {
     for (final holding in snapshot.holdings) {
       final quantity = selectedPortfolioId == unallocatedPortfolioId
           ? unallocatedQuantity(holding)
-          : allocatedQuantity(holding.symbolIsin, selectedPortfolioId);
+          : allocatedQuantity(holding.holdingKey, selectedPortfolioId);
       if (quantity > 0) {
         result.add(holding.copyWith(quantity: quantity));
       }
@@ -92,19 +92,19 @@ final class PortfolioLoaded extends PortfolioState {
     return total;
   }
 
-  num allocatedQuantity(String symbolIsin, String portfolioId) => allocations
+  num allocatedQuantity(String holdingKey, String portfolioId) => allocations
       .where(
         (item) =>
-            item.symbolIsin == symbolIsin && item.portfolioId == portfolioId,
+            item.holdingKey == holdingKey && item.portfolioId == portfolioId,
       )
       .fold<num>(0, (sum, item) => sum + item.quantity);
 
-  num totalAllocatedQuantity(String symbolIsin) => allocations
-      .where((item) => item.symbolIsin == symbolIsin)
+  num totalAllocatedQuantity(String holdingKey) => allocations
+      .where((item) => item.holdingKey == holdingKey)
       .fold<num>(0, (sum, item) => sum + item.quantity);
 
   num unallocatedQuantity(PortfolioHolding holding) {
-    final value = holding.quantity - totalAllocatedQuantity(holding.symbolIsin);
+    final value = holding.quantity - totalAllocatedQuantity(holding.holdingKey);
     return value < 0 ? 0 : value;
   }
 

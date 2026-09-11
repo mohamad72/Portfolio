@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:portfolio/src/features/accounts/domain/entities/broker_provider.dart';
 import 'package:portfolio/src/features/portfolio/domain/entities/account_snapshot.dart';
 import 'package:portfolio/src/features/portfolio/domain/entities/holding_allocation.dart';
 import 'package:portfolio/src/features/portfolio/domain/entities/local_portfolio.dart';
@@ -7,16 +8,19 @@ import 'package:portfolio/src/features/sharing/data/models/shared_portfolio_bund
 import 'package:portfolio/src/features/sharing/domain/entities/shared_portfolio_bundle.dart';
 
 void main() {
-  test('round-trips a shared portfolio bundle without losing allocations', () {
+  test('round-trips account-aware shared holdings and allocations', () {
     final bundle = SharedPortfolioBundle(
       snapshot: AccountSnapshot(
         holdings: const <PortfolioHolding>[
           PortfolioHolding(
+            accountId: 'ipas-1',
+            accountLabel: 'آی‌پاسارگاد',
+            provider: BrokerProvider.iPasargad,
             symbolIsin: 'IRTEST000001',
             symbolName: 'نمونه',
             quantity: 120,
             marketPriceToman: 1250,
-            marketPriceBasis: MarketPriceBasis.bestBuyOrder,
+            marketPriceBasis: MarketPriceBasis.sourceSellPrice,
             breakEvenPriceToman: 1000,
             previousCloseToman: 1200,
             bestBuyQuantity: 80,
@@ -36,6 +40,7 @@ void main() {
       allocations: <HoldingAllocation>[
         HoldingAllocation(
           portfolioId: 'mine',
+          holdingKey: 'ipas-1::IRTEST000001',
           symbolIsin: 'IRTEST000001',
           quantity: 70,
           effectiveAt: DateTime.utc(2026, 9, 11),
@@ -49,6 +54,6 @@ void main() {
 
     expect(decoded, bundle);
     expect(decoded.holdingsForPortfolio('mine').single.quantity, 70);
-    expect(decoded.unallocatedQuantity('IRTEST000001'), 50);
+    expect(decoded.unallocatedQuantity('ipas-1::IRTEST000001'), 50);
   });
 }

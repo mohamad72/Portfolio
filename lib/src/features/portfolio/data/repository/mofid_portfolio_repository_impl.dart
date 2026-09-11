@@ -7,12 +7,13 @@ import '../../../../shared/security/secure_session_store.dart';
 import '../../domain/entities/account_snapshot.dart';
 import '../../domain/entities/portfolio_holding.dart';
 import '../../domain/entities/portfolio_quote.dart';
-import '../../domain/repository/portfolio_repository.dart';
+import '../../../accounts/domain/entities/broker_provider.dart';
+import '../source/mofid_portfolio_source.dart';
 import '../models/mofid_market_quote_model.dart';
 import '../models/mofid_performance_item_model.dart';
 
-@LazySingleton(as: PortfolioRepository)
-class MofidPortfolioRepositoryImpl implements PortfolioRepository {
+@LazySingleton(as: MofidPortfolioSource)
+class MofidPortfolioRepositoryImpl implements MofidPortfolioSource {
   MofidPortfolioRepositoryImpl(this._remoteDataSource, this._sessionStore);
 
   static const String _baseUrl = 'https://api-mts.orbis.easytrader.ir';
@@ -76,6 +77,9 @@ class MofidPortfolioRepositoryImpl implements PortfolioRepository {
       final holdings = items.map((item) {
         final quote = quotes[item.symbolIsin];
         return PortfolioHolding(
+          accountId: 'mofid-primary',
+          accountLabel: 'مفید',
+          provider: BrokerProvider.mofid,
           symbolIsin: item.symbolIsin,
           symbolName: item.symbolName,
           quantity: item.asset,

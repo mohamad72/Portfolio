@@ -215,6 +215,19 @@ class _LoadedBody extends StatelessWidget {
               'آخرین همگام‌سازی',
               state.snapshot.syncedAt.toLocal().toString(),
             ),
+            if (state.snapshot.warnings.isNotEmpty) ...<Widget>[
+              const Divider(height: 24),
+              for (final warning in state.snapshot.warnings)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    'هشدار: $warning',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+            ],
             const Divider(height: 24),
             const Text(
               'بازده واقعی امروز، هفته و ماه فعلاً «داده کافی نداریم» است؛ گزارش سفارش موجود اجرای مستقل هر معامله را اثبات نمی‌کند.',
@@ -256,7 +269,7 @@ class _LoadedBody extends StatelessWidget {
   ) async {
     final current = <String, num>{
       for (final portfolio in state.portfolios)
-        portfolio.id: state.allocatedQuantity(holding.symbolIsin, portfolio.id),
+        portfolio.id: state.allocatedQuantity(holding.holdingKey, portfolio.id),
     };
     await showModalBottomSheet<void>(
       context: context,
@@ -264,14 +277,15 @@ class _LoadedBody extends StatelessWidget {
       useSafeArea: true,
       builder: (_) => AllocationSheet(
         holding: state.snapshot.holdings.firstWhere(
-          (item) => item.symbolIsin == holding.symbolIsin,
+          (item) => item.holdingKey == holding.holdingKey,
         ),
         portfolios: state.portfolios,
         currentAllocations: current,
         onSave: (allocations) => context.read<PortfolioCubit>().saveAllocations(
+              holdingKey: holding.holdingKey,
               symbolIsin: holding.symbolIsin,
               totalQuantity: state.snapshot.holdings
-                  .firstWhere((item) => item.symbolIsin == holding.symbolIsin)
+                  .firstWhere((item) => item.holdingKey == holding.holdingKey)
                   .quantity,
               allocations: allocations,
             ),

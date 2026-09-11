@@ -21,25 +21,25 @@ class SharedPortfolioBundle extends Equatable {
   final List<HoldingAllocation> allocations;
   final DateTime publishedAt;
 
-  num allocatedQuantity(String symbolIsin, String portfolioId) => allocations
+  num allocatedQuantity(String holdingKey, String portfolioId) => allocations
       .where(
         (item) =>
-            item.symbolIsin == symbolIsin && item.portfolioId == portfolioId,
+            item.holdingKey == holdingKey && item.portfolioId == portfolioId,
       )
       .fold<num>(0, (sum, item) => sum + item.quantity);
 
-  num totalAllocatedQuantity(String symbolIsin) => allocations
-      .where((item) => item.symbolIsin == symbolIsin)
+  num totalAllocatedQuantity(String holdingKey) => allocations
+      .where((item) => item.holdingKey == holdingKey)
       .fold<num>(0, (sum, item) => sum + item.quantity);
 
-  num unallocatedQuantity(String symbolIsin) {
+  num unallocatedQuantity(String holdingKey) {
     final holding = snapshot.holdings
-        .where((item) => item.symbolIsin == symbolIsin)
+        .where((item) => item.holdingKey == holdingKey)
         .firstOrNull;
     if (holding == null) {
       return 0;
     }
-    final value = holding.quantity - totalAllocatedQuantity(symbolIsin);
+    final value = holding.quantity - totalAllocatedQuantity(holdingKey);
     return value < 0 ? 0 : value;
   }
 
@@ -51,8 +51,8 @@ class SharedPortfolioBundle extends Equatable {
     final result = <PortfolioHolding>[];
     for (final holding in snapshot.holdings) {
       final quantity = portfolioId == unallocatedPortfolioId
-          ? unallocatedQuantity(holding.symbolIsin)
-          : allocatedQuantity(holding.symbolIsin, portfolioId);
+          ? unallocatedQuantity(holding.holdingKey)
+          : allocatedQuantity(holding.holdingKey, portfolioId);
       if (quantity > 0) {
         result.add(holding.copyWith(quantity: quantity));
       }

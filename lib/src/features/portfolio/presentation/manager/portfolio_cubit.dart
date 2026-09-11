@@ -138,11 +138,13 @@ class PortfolioCubit extends Cubit<PortfolioState> {
   }
 
   Future<String?> saveAllocations({
+    required String holdingKey,
     required String symbolIsin,
     required num totalQuantity,
     required Map<String, num> allocations,
   }) async {
     final result = await _saveSymbolAllocations(
+      holdingKey: holdingKey,
       symbolIsin: symbolIsin,
       totalQuantity: totalQuantity,
       allocations: allocations,

@@ -39,9 +39,20 @@ class HoldingCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        holding.symbolIsin,
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            holding.symbolIsin,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Chip(
+                            visualDensity: VisualDensity.compact,
+                            label: Text(holding.accountLabel),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -141,6 +152,7 @@ class HoldingCard extends StatelessWidget {
         MarketPriceBasis.bestBuyOrder => 'بهترین سفارش خرید',
         MarketPriceBasis.lastTrade => 'آخرین معامله',
         MarketPriceBasis.closingPrice => 'قیمت پایانی',
+        MarketPriceBasis.sourceSellPrice => 'قیمت فروش/ابطال منبع',
         MarketPriceBasis.unavailable => 'ناموجود',
       };
 

@@ -12,6 +12,7 @@ class SaveSymbolAllocations {
   final LocalPortfolioRepository _repository;
 
   Future<Either<Failure, Unit>> call({
+    required String holdingKey,
     required String symbolIsin,
     required num totalQuantity,
     required Map<String, num> allocations,
@@ -28,7 +29,7 @@ class SaveSymbolAllocations {
       (sum, quantity) => sum + quantity,
     );
     if (allocated > totalQuantity) {
-      return left(const Failure('مجموع تخصیص از موجودی کل نماد بیشتر است.'));
+      return left(const Failure('مجموع تخصیص از موجودی این دارایی بیشتر است.'));
     }
 
     final now = DateTime.now();
@@ -37,6 +38,7 @@ class SaveSymbolAllocations {
         .map(
           (entry) => HoldingAllocation(
             portfolioId: entry.key,
+            holdingKey: holdingKey,
             symbolIsin: symbolIsin,
             quantity: entry.value,
             effectiveAt: now,
@@ -44,6 +46,6 @@ class SaveSymbolAllocations {
         )
         .toList(growable: false);
 
-    return _repository.replaceSymbolAllocations(symbolIsin, records);
+    return _repository.replaceHoldingAllocations(holdingKey, records);
   }
 }

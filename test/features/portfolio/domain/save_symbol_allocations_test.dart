@@ -8,6 +8,7 @@ import 'package:portfolio/src/shared/error/failure.dart';
 
 class _FakeLocalPortfolioRepository implements LocalPortfolioRepository {
   List<HoldingAllocation> saved = <HoldingAllocation>[];
+  String? replacedKey;
 
   @override
   Future<Either<Failure, Unit>> deletePortfolio(String id) async => right(unit);
@@ -21,10 +22,11 @@ class _FakeLocalPortfolioRepository implements LocalPortfolioRepository {
       right(const <LocalPortfolio>[]);
 
   @override
-  Future<Either<Failure, Unit>> replaceSymbolAllocations(
-    String symbolIsin,
+  Future<Either<Failure, Unit>> replaceHoldingAllocations(
+    String holdingKey,
     List<HoldingAllocation> allocations,
   ) async {
+    replacedKey = holdingKey;
     saved = List<HoldingAllocation>.from(allocations);
     return right(unit);
   }
@@ -43,19 +45,23 @@ void main() {
     useCase = SaveSymbolAllocations(repository);
   });
 
-  test('accepts a partial allocation and leaves remainder unallocated', () async {
+  test('accepts a partial allocation and scopes it to one account holding', () async {
     final result = await useCase(
+      holdingKey: 'ipas-1::ISIN',
       symbolIsin: 'ISIN',
       totalQuantity: 100,
       allocations: <String, num>{'mine': 40, 'father': 20},
     );
 
     expect(result.isRight(), isTrue);
+    expect(repository.replacedKey, 'ipas-1::ISIN');
     expect(repository.saved.fold<num>(0, (sum, item) => sum + item.quantity), 60);
+    expect(repository.saved.every((item) => item.holdingKey == 'ipas-1::ISIN'), isTrue);
   });
 
   test('rejects allocations above synced total quantity', () async {
     final result = await useCase(
+      holdingKey: 'mofid-primary::ISIN',
       symbolIsin: 'ISIN',
       totalQuantity: 100,
       allocations: <String, num>{'mine': 60, 'father': 50},
@@ -67,6 +73,7 @@ void main() {
 
   test('rejects negative quantities', () async {
     final result = await useCase(
+      holdingKey: 'mofid-primary::ISIN',
       symbolIsin: 'ISIN',
       totalQuantity: 100,
       allocations: <String, num>{'mine': -1},

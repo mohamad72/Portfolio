@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../features/accounts/presentation/manager/broker_accounts_cubit.dart';
 import '../features/authentication/presentation/manager/authentication_cubit.dart';
 import '../features/authentication/presentation/manager/authentication_state.dart';
 import '../features/authentication/presentation/pages/mofid_login_page.dart';
@@ -34,6 +35,7 @@ class _AppShellState extends State<AppShell> {
     return BlocListener<AuthenticationCubit, AuthenticationState>(
       listener: (context, state) {
         if (state is AuthenticationSignedIn) {
+          context.read<BrokerAccountsCubit>().load();
           context.read<PortfolioCubit>().load();
           context.read<WatchlistCubit>().load();
         }
